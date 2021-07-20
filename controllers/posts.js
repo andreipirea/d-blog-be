@@ -3,11 +3,12 @@ const db = require('../util/database');
 
 
 exports.addPost = (req, res) => {
+  console.log(req.body);
   let post = {
-    title: "fourth post",
-    content: "this is the gourth post",
-    link: "fourth link",
-    imageUrl: "image url"
+    title: req.body.title,
+    content: req.body.content,
+    link: req.body.link,
+    imageUrl: req.body.imageUrl
   };
   let sql = "INSERT INTO posts SET ?";
   let query = db.query(sql, post, (err, result) => {
@@ -31,7 +32,7 @@ exports.getPost = (req, res) => {
   let query = db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.send(result);
+    res.status(200).json(result);
   });
 };
 

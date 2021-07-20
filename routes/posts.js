@@ -8,7 +8,7 @@ const postsController = require('../controllers/posts');
 
 router.get('/', postsController.getPosts)
 
-router.get("/addpost", postsController.addPost);
+router.post("/addpost", postsController.addPost);
 
 router.get("/getposts", postsController.getPosts);
 
