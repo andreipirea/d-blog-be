@@ -3,15 +3,22 @@ const db = require('../util/database');
 
 
 exports.addPost = (req, res) => {
-  console.log(req.body);
+  // console.log(req.file.path);
+  if (!req.file) {
+    const error = new Error('No image provided');
+    error.statusCode = 422;
+    throw error;
+  }
   let post = {
     title: req.body.title,
     content: req.body.content,
     link: req.body.link,
-    imageUrl: req.body.imageUrl
+    imageUrl: req.file !== undefined ? req.file.path.toString() : ""
   };
+  console.log(post);
+
   let sql = "INSERT INTO posts SET ?";
-  let query = db.query(sql, post, (err, result) => {
+  db.query(sql, post, (err, result) => {
     if (err) throw err;
     console.log(result);
     res.send(result);
