@@ -1,5 +1,5 @@
 const db = require('../util/database');
-
+const fileHelper = require('../util/file');
 
 
 exports.addPost = (req, res) => {
@@ -15,7 +15,6 @@ exports.addPost = (req, res) => {
     link: req.body.link,
     imageUrl: req.file !== undefined ? req.file.path.toString() : ""
   };
-  console.log(post);
 
   let sql = "INSERT INTO posts SET ?";
   db.query(sql, post, (err, result) => {
@@ -27,7 +26,7 @@ exports.addPost = (req, res) => {
 
 exports.getPosts = (req, res) => {
   let sql = "SELECT * FROM posts";
-  let query = db.query(sql, (err, results) => {
+  db.query(sql, (err, results) => {
     if (err) throw err;
     console.log(results);
     res.status(200).json(results);
@@ -54,10 +53,18 @@ exports.updatePost = (req, res) => {
 };
 
 exports.deletePost = (req, res) => {
+  // let imagePath;
+  let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+  let query = db.query(selectedPost, (err, result) => {
+    if (err) throw err;
+    fileHelper.deleteFile(result[0].imageUrl);
+  });
+
+
   let sql = `DELETE FROM posts WHERE id = ${req.params.id}`;
-  let query = db.query(sql, (err, result) => {
+  db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.send("post deleted...");
+    res.status(200).json({message: 'Post deleted'});
   });
 };
