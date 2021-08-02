@@ -1,11 +1,10 @@
-const db = require('../util/database');
-const fileHelper = require('../util/file');
-
+const db = require("../util/database");
+const fileHelper = require("../util/file");
 
 exports.addPost = (req, res) => {
   // console.log(req.file.path);
   if (!req.file) {
-    const error = new Error('No image provided');
+    const error = new Error("No image provided");
     error.statusCode = 422;
     throw error;
   }
@@ -22,7 +21,7 @@ exports.addPost = (req, res) => {
     console.log(result);
     res.send(result);
   });
-}
+};
 
 exports.getPosts = (req, res) => {
   let sql = "SELECT * FROM posts";
@@ -43,8 +42,12 @@ exports.getPost = (req, res) => {
 };
 
 exports.updatePost = (req, res) => {
-  let newTitle = "updated title";
-  let sql = `UPDATE posts SET title = '${newTitle}' WHERE id = ${req.params.id}`;
+  const title = req.body.title;
+  const content = req.body.content;
+  const link = req.body.link;
+  const imageUrl = req.file !== undefined ? req.file.path.toString() : "";
+
+  let sql = `UPDATE posts SET title = ${title}, content = ${content}, link = ${link}, imageUrl = ${imageUrl} WHERE id = ${req.params.id}`;
   let query = db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
@@ -60,11 +63,10 @@ exports.deletePost = (req, res) => {
     fileHelper.deleteFile(result[0].imageUrl);
   });
 
-
   let sql = `DELETE FROM posts WHERE id = ${req.params.id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.status(200).json({message: 'Post deleted'});
+    res.status(200).json({ message: "Post deleted" });
   });
 };

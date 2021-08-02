@@ -14,7 +14,7 @@ router.get("/getposts", postsController.getPosts);
 
 router.get("/getpost/:id", postsController.getPost);
 
-router.get("/updatepost/:id", postsController.updatePost);
+router.put("/updatepost/:id", postsController.updatePost);
 
 router.delete("/deletepost/:id", postsController.deletePost);
 
