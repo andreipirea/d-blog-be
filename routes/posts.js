@@ -12,7 +12,7 @@ router.post("/addpost", postsController.addPost);
 
 router.get("/getposts", postsController.getPosts);
 
-router.get("/getpost/:id", postsController.getPost);
+// router.get("/getpost/:id", postsController.getPost);
 
 router.put("/updatepost/:id", postsController.updatePost);
 

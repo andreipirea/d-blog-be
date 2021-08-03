@@ -2,7 +2,6 @@ const db = require("../util/database");
 const fileHelper = require("../util/file");
 
 exports.addPost = (req, res) => {
-  // console.log(req.file.path);
   if (!req.file) {
     const error = new Error("No image provided");
     error.statusCode = 422;
@@ -18,7 +17,6 @@ exports.addPost = (req, res) => {
   let sql = "INSERT INTO posts SET ?";
   db.query(sql, post, (err, result) => {
     if (err) throw err;
-    console.log(result);
     res.send(result);
   });
 };
@@ -27,36 +25,48 @@ exports.getPosts = (req, res) => {
   let sql = "SELECT * FROM posts";
   db.query(sql, (err, results) => {
     if (err) throw err;
-    console.log(results);
     res.status(200).json(results);
   });
 };
 
-exports.getPost = (req, res) => {
-  let sql = `SELECT * FROM posts WHERE id = ${req.params.id}`;
-  let query = db.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.status(200).json(result);
-  });
-};
+// exports.getPost = (req, res) => {
+//   let sql = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+//   let query = db.query(sql, (err, result) => {
+//     if (err) throw err;
+//     res.status(200).json(result);
+//   });
+// };
 
 exports.updatePost = (req, res) => {
-  const title = req.body.title;
-  const content = req.body.content;
-  const link = req.body.link;
-  const imageUrl = req.file !== undefined ? req.file.path.toString() : "";
-
-  let sql = `UPDATE posts SET title = ${title}, content = ${content}, link = ${link}, imageUrl = ${imageUrl} WHERE id = ${req.params.id}`;
-  let query = db.query(sql, (err, result) => {
+  
+  let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+  db.query(selectedPost, (err, result) => {
     if (err) throw err;
-    console.log(result);
-    res.send("post updated...");
+    
+    if (req.file) {
+      fileHelper.deleteFile(result[0].imageUrl);
+    }
+
+    let path = req.file !== undefined ? req.file.path.toString() : result[0].imageUrl;
+    path = path.replace(/\\/g, "\\\\");
+
+    const title = req.body.title;
+    const content = req.body.content;
+    const link = req.body.link;
+    const imageUrl = path;
+   
+  
+    let sql = `UPDATE posts SET title = "${title}", content = "${content}", link = "${link}", imageUrl = "${imageUrl}" WHERE id = ${req.params.id}`;
+  
+    db.query(sql, (err, result) => { 
+      if (err) throw err;
+      res.json({message: "post updated..."});
+    });
   });
+
 };
 
 exports.deletePost = (req, res) => {
-  // let imagePath;
   let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
   let query = db.query(selectedPost, (err, result) => {
     if (err) throw err;
@@ -66,7 +76,6 @@ exports.deletePost = (req, res) => {
   let sql = `DELETE FROM posts WHERE id = ${req.params.id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
-    console.log(result);
     res.status(200).json({ message: "Post deleted" });
   });
 };
