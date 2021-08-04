@@ -2,11 +2,11 @@ const db = require("../util/database");
 const fileHelper = require("../util/file");
 
 exports.addPost = (req, res) => {
-  if (!req.file) {
-    const error = new Error("No image provided");
-    error.statusCode = 422;
-    throw error;
-  }
+  // if (!req.file) {
+  //   const error = new Error("No image provided");
+  //   error.statusCode = 422;
+  //   throw error;
+  // }
   let post = {
     title: req.body.title,
     content: req.body.content,
@@ -43,7 +43,7 @@ exports.updatePost = (req, res) => {
   db.query(selectedPost, (err, result) => {
     if (err) throw err;
     
-    if (req.file) {
+    if (req.file && result[0].imageUrl !== "") {
       fileHelper.deleteFile(result[0].imageUrl);
     }
 
@@ -70,7 +70,9 @@ exports.deletePost = (req, res) => {
   let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
   let query = db.query(selectedPost, (err, result) => {
     if (err) throw err;
-    fileHelper.deleteFile(result[0].imageUrl);
+    if (result[0].imageUrl !== "") {
+      fileHelper.deleteFile(result[0].imageUrl);
+    }
   });
 
   let sql = `DELETE FROM posts WHERE id = ${req.params.id}`;
