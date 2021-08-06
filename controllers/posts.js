@@ -38,6 +38,8 @@ exports.getPosts = (req, res) => {
 // };
 
 exports.updatePost = (req, res) => {
+  const removeImage = req.body.removeImage;
+
   
   let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
   db.query(selectedPost, (err, result) => {
@@ -46,14 +48,22 @@ exports.updatePost = (req, res) => {
     if (req.file && result[0].imageUrl !== "") {
       fileHelper.deleteFile(result[0].imageUrl);
     }
+    
 
-    let path = req.file !== undefined ? req.file.path.toString() : result[0].imageUrl;
+    let path = req.file !== undefined ? req.file.path.toString() : removeImage === false ? result[0].imageUrl : "";
     path = path.replace(/\\/g, "\\\\");
-
+    
+    
     const title = req.body.title;
     const content = req.body.content;
     const link = req.body.link;
     const imageUrl = path;
+
+
+    if (imageUrl === "") {
+      console.log("remove image", removeImage);
+      fileHelper.deleteFile(result[0].imageUrl);
+    }
    
   
     let sql = `UPDATE posts SET title = "${title}", content = "${content}", link = "${link}", imageUrl = "${imageUrl}" WHERE id = ${req.params.id}`;
