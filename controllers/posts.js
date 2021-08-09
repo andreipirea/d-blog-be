@@ -61,7 +61,6 @@ exports.updatePost = (req, res) => {
 
 
     if (imageUrl === "") {
-      console.log("remove image", removeImage);
       fileHelper.deleteFile(result[0].imageUrl);
     }
    
