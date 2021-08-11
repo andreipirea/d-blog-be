@@ -1,4 +1,5 @@
 const express = require('express');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ const postsController = require('../controllers/posts');
 
 router.get('/', postsController.getPosts)
 
-router.post("/addpost", postsController.addPost);
+router.post("/addpost", isAuth, postsController.addPost);
 
 router.get("/getposts", postsController.getPosts);
 
