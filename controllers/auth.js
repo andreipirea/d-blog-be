@@ -4,43 +4,47 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.signup = async (req, res, next) => {
-  let userExists;
   let selectSql = `SELECT * FROM users WHERE  email = '${req.body.email}'`;
   await db.query(selectSql, async (err, result) => {
     if (result.length !== 0) {
-      userExists = result[0];
       const error = new Error("Exista deja un user cu acest email");
       error.statusCode = 401;
-      next(error);
+      return next(error);
+      ;
     }
+    const password = req.body.password;
+    const salt = await bcrypt.genSaltSync();
+    const hashedPassword = await bcrypt.hash(password, salt);
+  
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword
+    };
+  
+    const token = jwt.sign(
+      {
+        email: user.email,
+        password: user.password
+      },
+      "somesupersecretsecret",
+      { expiresIn: "1h" }
+    );
+  
+    let insertSql = "INSERT INTO users SET ?";
+    db.query(insertSql, user, (err, result) => {
+      if (err) throw err;
+
+      db.query(`SELECT id, name, email FROM users WHERE email = '${user.email}'`, (err, result) => {
+        if (err) throw err;
+
+        res.status(200).json({ token: token, user: result[0] });
+      });
+
+    });
   });
 
   
-  const password = req.body.password;
-  const salt = await bcrypt.genSaltSync();
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  const user = {
-    name: req.body.name,
-    email: req.body.email,
-    password: hashedPassword
-  };
-
-  const token = jwt.sign(
-    {
-      email: user.email,
-      password: user.password
-    },
-    "somesupersecretsecret",
-    { expiresIn: "1h" }
-  );
-
-  let insertSql = "INSERT INTO users SET ?";
-  db.query(insertSql, user, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.status(200).json({ token: token, userId: result.insertId.toString() });
-  });
 };
 
 exports.login = (req, res, next) => {
@@ -69,8 +73,23 @@ exports.login = (req, res, next) => {
       { expiresIn: "1h" }
     );
 
-    if (isEquel && !userExists) {
-      res.status(200).json({ token: token, userId: foundUser.id.toString() });
+    if (isEquel) {
+      res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email} });
     }
   });
+};
+
+exports.getUser = (req, res, next) => {
+  const token = req.headers.authorization.split(' ')[1];
+  if (token !== "null") {
+    const decodedToken = jwt.verify(token, 'somesupersecretsecret');
+
+  let sql = `SELECT * FROM users WHERE  email = '${decodedToken.email}'`;
+  db.query(sql, (err, result) => {
+    const foundUser = result[0];
+    res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email} });
+  });
+  } else {
+    res.json({message: "ai fost delogat"});
+  }
 };

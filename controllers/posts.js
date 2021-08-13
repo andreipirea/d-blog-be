@@ -1,5 +1,7 @@
 const db = require("../util/database");
 const fileHelper = require("../util/file");
+const multer = require("multer");
+
 
 exports.addPost = (req, res) => {
   // if (!req.file) {
@@ -7,6 +9,7 @@ exports.addPost = (req, res) => {
   //   error.statusCode = 422;
   //   throw error;
   // }
+
   let post = {
     title: req.body.title,
     content: req.body.content,
@@ -19,6 +22,29 @@ exports.addPost = (req, res) => {
     if (err) throw err;
     res.send(result);
   });
+
+  // const fileStorage = multer.diskStorage({
+  //   destination: (req, file, cb) => {
+  //     cb(null, 'images');
+  //   },
+  //   filename: (req, file, cb) => {
+  //     cb(null, Date.now() + '-' + file.originalname);
+  //   }
+  // });
+  
+  // const fileFilter = (req, file, cb) => {
+  //   if (
+  //     file.mimetype === "image/png" ||
+  //     file.mimetype === "image/jpg" ||
+  //     file.mimetype === "image/jpeg"
+  //   ) {
+  //     cb(null, true);
+  //   } else {
+  //     cb(null, false);
+  //   }
+  // };
+
+  // multer({ storage: fileStorage, fileFilter: fileFilter }).single("imageUrl");
 };
 
 exports.getPosts = (req, res) => {
