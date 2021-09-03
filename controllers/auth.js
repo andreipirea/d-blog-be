@@ -74,7 +74,7 @@ exports.login = (req, res, next) => {
     );
 
     if (isEquel) {
-      res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email} });
+      res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email, userStatus: foundUser.status} });
     }
   });
 };
@@ -87,7 +87,7 @@ exports.getUser = (req, res, next) => {
   let sql = `SELECT * FROM users WHERE  email = '${decodedToken.email}'`;
   db.query(sql, (err, result) => {
     const foundUser = result[0];
-    res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email} });
+    res.status(200).json({ token: token, user: {id: foundUser.id.toString(), name: foundUser.name, email: foundUser.email, userStatus: foundUser.status} });
   });
   } else {
     res.json({message: "ai fost delogat"});

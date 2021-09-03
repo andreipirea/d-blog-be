@@ -1,15 +1,8 @@
 const db = require("../util/database");
 const fileHelper = require("../util/file");
-const multer = require("multer");
 
 
 exports.addPost = (req, res) => {
-  // if (!req.file) {
-  //   const error = new Error("No image provided");
-  //   error.statusCode = 422;
-  //   throw error;
-  // }
-
   let post = {
     title: req.body.title,
     content: req.body.content,
@@ -22,29 +15,6 @@ exports.addPost = (req, res) => {
     if (err) throw err;
     res.send(result);
   });
-
-  // const fileStorage = multer.diskStorage({
-  //   destination: (req, file, cb) => {
-  //     cb(null, 'images');
-  //   },
-  //   filename: (req, file, cb) => {
-  //     cb(null, Date.now() + '-' + file.originalname);
-  //   }
-  // });
-  
-  // const fileFilter = (req, file, cb) => {
-  //   if (
-  //     file.mimetype === "image/png" ||
-  //     file.mimetype === "image/jpg" ||
-  //     file.mimetype === "image/jpeg"
-  //   ) {
-  //     cb(null, true);
-  //   } else {
-  //     cb(null, false);
-  //   }
-  // };
-
-  // multer({ storage: fileStorage, fileFilter: fileFilter }).single("imageUrl");
 };
 
 exports.getPosts = (req, res) => {
@@ -65,7 +35,7 @@ exports.getPosts = (req, res) => {
 
 exports.updatePost = (req, res) => {
   const removeImage = req.body.removeImage;
-
+  console.log("req body", req.body);
   
   let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
   db.query(selectedPost, (err, result) => {
@@ -76,7 +46,7 @@ exports.updatePost = (req, res) => {
     }
     
 
-    let path = req.file !== undefined ? req.file.path.toString() : removeImage === false ? result[0].imageUrl : "";
+    let path = req.file !== undefined ? req.file.path.toString() : removeImage === 'true'  ? "" : result[0].imageUrl;
     path = path.replace(/\\/g, "\\\\");
     
     
@@ -85,10 +55,11 @@ exports.updatePost = (req, res) => {
     const link = req.body.link;
     const imageUrl = path;
 
-
-    if (imageUrl === "") {
+    if (removeImage === 'true' && result[0].imageUrl) {
       fileHelper.deleteFile(result[0].imageUrl);
     }
+
+    console.log("image Url", imageUrl);
    
   
     let sql = `UPDATE posts SET title = "${title}", content = "${content}", link = "${link}", imageUrl = "${imageUrl}" WHERE id = ${req.params.id}`;
