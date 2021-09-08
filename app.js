@@ -5,6 +5,7 @@ const path = require("path");
 const db = require("./util/database");
 const multer = require("multer");
 const articlesRoutes = require("./routes/posts");
+const carouselRoutes = require("./routes/carousel");
 const authRoutes = require("./routes/auth");
 
 const app = express();
@@ -54,6 +55,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 
 
 app.use(articlesRoutes);
+app.use(carouselRoutes);
 app.use("/auth", authRoutes);
 
 db.getConnection((err, connection) => {

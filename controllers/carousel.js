@@ -1,24 +1,22 @@
 const db = require("../util/database");
 const fileHelper = require("../util/file");
 
-
-exports.addPost = (req, res) => {
+exports.addSlide = (req, res) => {
   let post = {
     title: req.body.title,
     content: req.body.content,
-    link: req.body.link,
     imageUrl: req.file !== undefined ? req.file.path.toString() : ""
   };
 
-  let sql = "INSERT INTO posts SET ?";
+  let sql = "INSERT INTO carousel SET ?";
   db.query(sql, post, (err, result) => {
     if (err) throw err;
     res.send(result);
   });
 };
 
-exports.getPosts = (req, res) => {
-  let sql = "SELECT * FROM posts";
+exports.getSlides = (req, res) => {
+  let sql = "SELECT * FROM carousel";
   db.query(sql, (err, results) => {
     if (err) throw err;
     res.status(200).json(results);
@@ -33,47 +31,38 @@ exports.getPosts = (req, res) => {
 //   });
 // };
 
-exports.updatePost = (req, res) => {
-  const removeImage = req.body.removeImage;
+exports.updateSlide = (req, res) => {
   console.log("req body", req.body);
-  
-  let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+
+  let selectedPost = `SELECT * FROM carousel WHERE id = ${req.params.id}`;
   db.query(selectedPost, (err, result) => {
     if (err) throw err;
-    
+
     if (req.file && result[0].imageUrl !== "") {
       fileHelper.deleteFile(result[0].imageUrl);
     }
-    
 
-    let path = req.file !== undefined ? req.file.path.toString() : removeImage === 'true'  ? "" : result[0].imageUrl;
+    let path =
+      req.file !== undefined ? req.file.path.toString() : result[0].imageUrl;
     path = path.replace(/\\/g, "\\\\");
-    
-    
+
     const title = req.body.title;
     const content = req.body.content;
-    const link = req.body.link;
     const imageUrl = path;
 
-    if (removeImage === 'true' && result[0].imageUrl) {
-      fileHelper.deleteFile(result[0].imageUrl);
-    }
+    let sql = `UPDATE carousel SET title = '${title}', content = '${content}', imageUrl = '${imageUrl}' WHERE id = ${req.params.id}`;
+    // sql = sql.replace(/"/g, "");
+    // console.log("SQL", sql);
 
-    console.log("image Url", imageUrl);
-   
-  
-    let sql = `UPDATE posts SET title = \'${title}\', content = \'${content}\', link = \'${link}\', imageUrl = \'${imageUrl}\' WHERE id = ${req.params.id}`;
-  
-    db.query(sql, (err, result) => { 
+    db.query(sql, (err, result) => {
       if (err) throw err;
-      res.json({message: "post updated..."});
+      res.json({ message: "post updated..." });
     });
   });
-
 };
 
-exports.deletePost = (req, res) => {
-  let selectedPost = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+exports.deleteSlide = (req, res) => {
+  let selectedPost = `SELECT * FROM carousel WHERE id = ${req.params.id}`;
   let query = db.query(selectedPost, (err, result) => {
     if (err) throw err;
     if (result[0].imageUrl !== "") {
@@ -81,7 +70,7 @@ exports.deletePost = (req, res) => {
     }
   });
 
-  let sql = `DELETE FROM posts WHERE id = ${req.params.id}`;
+  let sql = `DELETE FROM carousel WHERE id = ${req.params.id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     res.status(200).json({ message: "Post deleted" });
