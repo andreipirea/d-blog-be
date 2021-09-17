@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-
+const fs = require("fs");
 
 const db = require("./util/database");
 const multer = require("multer");
@@ -16,19 +16,28 @@ app.use((req, res, next) => {
     "Access-Control-Allow-Methods",
     "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Authorization, Content-Type"
-  );
-  next(); 
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  next();
 });
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
+    // console.log("req files ", req.files);
+    let name;
+    if (
+      (req.files.postCarousel &&
+        fs.existsSync(`./images/${file.originalname}`)) ||
+      (req.files.imageUrl && fs.existsSync(`./images/${file.originalname}`))
+    ) {
+      name = file.originalname;
+    } else {
+      name = Date.now() + "-" + file.originalname;
+    }
+
+    cb(null, name);
   }
 });
 
@@ -48,11 +57,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-  multer({ storage: fileStorage, fileFilter: fileFilter }).single("imageUrl")
+  multer({ storage: fileStorage, fileFilter: fileFilter }).fields([
+    { name: "imageUrl" },
+    { name: "postCarousel" }
+  ])
 );
 
 app.use("/images", express.static(path.join(__dirname, "images")));
-
 
 app.use(articlesRoutes);
 app.use(carouselRoutes);
@@ -69,7 +80,7 @@ app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({message: message});
+  res.status(status).json({ message: message });
 });
 
 app.listen(4000);
