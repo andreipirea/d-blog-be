@@ -14,7 +14,8 @@ exports.addPost = (req, res) => {
     content: req.body.content,
     link: req.body.link,
     imageUrl: req.files.imageUrl !== undefined ? req.files.imageUrl[0].path.toString() : "",
-    imageGallery: req.files.postCarousel ? galleryArray.join(",") : ""
+    imageGallery: req.files.postCarousel ? galleryArray.join(",") : "",
+    category: req.body.category
   };
 
   let sql = "INSERT INTO posts SET ?";
@@ -77,13 +78,14 @@ exports.updatePost = (req, res) => {
     const content = req.body.content;
     const link = req.body.link;
     const imageUrl = req.files.imageUrl ? req.files.imageUrl[0].path.toString().replace(/\\/g, "\\\\") : "";
-    const imageGallery = req.files.postCarousel ? galleryArray.join(",").replace(/\\/g, "\\\\") : ""
+    const imageGallery = req.files.postCarousel ? galleryArray.join(",").replace(/\\/g, "\\\\") : "";
+    const category = req.body.category;
 
     console.log("image Url", imageUrl);
     console.log("image gallery", imageGallery);
    
   
-    let sql = `UPDATE posts SET title = \'${title}\', content = \'${content}\', link = \'${link}\', imageUrl = \'${imageUrl}\', imageGallery = \'${imageGallery}\' WHERE id = ${req.params.id}`;
+    let sql = `UPDATE posts SET title = \'${title}\', content = \'${content}\', link = \'${link}\', imageUrl = \'${imageUrl}\', imageGallery = \'${imageGallery}\', category = \'${category}'\ WHERE id = ${req.params.id}`;
   
     db.query(sql, (err, result) => { 
       if (err) throw err;
