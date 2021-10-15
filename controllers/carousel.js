@@ -5,8 +5,10 @@ exports.addSlide = (req, res) => {
   let post = {
     title: req.body.title,
     content: req.body.content,
-    imageUrl: req.file !== undefined ? req.file.path.toString() : ""
+    imageUrl: req.files.imageUrl !== undefined ? req.files.imageUrl[0].path.toString() : ""
   };
+
+  console.log("ADD POST", post);
 
   let sql = "INSERT INTO carousel SET ?";
   db.query(sql, post, (err, result) => {
@@ -38,17 +40,22 @@ exports.updateSlide = (req, res) => {
   db.query(selectedPost, (err, result) => {
     if (err) throw err;
 
-    if (req.file && result[0].imageUrl !== "") {
-      fileHelper.deleteFile(result[0].imageUrl);
+    // if (req.file && result[0].imageUrl !== "") {
+    //   fileHelper.deleteFile(result[0].imageUrl);
+    // }
+    if (req.files.imageUrl && result[0].imageUrl !== "") {
+      if (req.files.imageUrl[0].path.toString() !== result[0].imageUrl) {
+        fileHelper.deleteFile(result[0].imageUrl);
+      }
     }
 
-    let path =
-      req.file !== undefined ? req.file.path.toString() : result[0].imageUrl;
-    path = path.replace(/\\/g, "\\\\");
+    // let path =
+    //   req.file !== undefined ? req.file.path.toString() : result[0].imageUrl;
+    // path = path.replace(/\\/g, "\\\\");
 
     const title = req.body.title;
     const content = req.body.content;
-    const imageUrl = path;
+    const imageUrl = req.files.imageUrl ? req.files.imageUrl[0].path.toString().replace(/\\/g, "\\\\") : "";
 
     let sql = `UPDATE carousel SET title = '${title}', content = '${content}', imageUrl = '${imageUrl}' WHERE id = ${req.params.id}`;
     // sql = sql.replace(/"/g, "");

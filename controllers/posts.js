@@ -1,6 +1,15 @@
 const db = require("../util/database");
 const fileHelper = require("../util/file");
 
+const nodemailer = require('nodemailer');
+
+const transport = nodemailer.createTransport({
+  service: 'yahoo',
+  auth: {
+    user: 'andrei.pirea@yahoo.ro',
+    pass: 'ckmkwwudkegielti'
+  }
+});
 
 exports.addPost = (req, res) => {
   let galleryArray = [];
@@ -22,6 +31,31 @@ exports.addPost = (req, res) => {
   db.query(sql, post, (err, result) => {
     if (err) throw err;
     res.send(result);
+
+    db.query("SELECT email FROM users", (err, results) => {
+      if (err) throw err;
+      const emailsArray = JSON.parse(JSON.stringify(results));
+      const emails = [];
+      for (let e = 0; e < emailsArray.length; e++) {
+        emails.push(emailsArray[e].email);
+      }
+
+      const message = {
+        to: emails,
+        from: 'andrei.pirea@yahoo.ro',
+        subject: 'Vezi ultimul articol postat!',
+        html: `<h1>A fost adăugat un articol nou: "${req.body.title}"</h1><br/><p>Poți să îl vezi <a href="https://manuteharnicute.ro" target="_blank">aici</a>.</p>`
+      };
+  
+      transport.sendMail(message, (error, info) => {
+        if (error) {
+          console.log("error sending email", error);
+        } else {
+          console.log("email sent", info.response);
+        }
+      });
+    });
+
   });
 };
 

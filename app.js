@@ -8,6 +8,7 @@ const articlesRoutes = require("./routes/posts");
 const carouselRoutes = require("./routes/carousel");
 const authRoutes = require("./routes/auth");
 const aboutRoutes = require("./routes/about");
+const contactRoutes = require("./routes/contact");
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(articlesRoutes);
 app.use(carouselRoutes);
 app.use(aboutRoutes);
+app.use(contactRoutes);
 app.use("/auth", authRoutes);
 
 db.getConnection((err, connection) => {

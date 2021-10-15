@@ -3,8 +3,6 @@ const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
-const db = require('../util/database');
-
 const postsController = require('../controllers/posts');
 
 router.get('/', postsController.getPosts)
