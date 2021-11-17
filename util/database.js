@@ -4,17 +4,17 @@ const mysql = require("mysql");
 const pool = mysql.createPool({
   host: "localhost",
   user: "root",
-  password: "",
+  password: "root",
   database: "d-blog"
 });
-
+ 
 module.exports = pool;
 
 // const db = mysql.createConnection({
 //   host: "localhost",
 //   user: "root",
 //   password: "",
-//   database: "d-blog"
+//   database: "d-blog" 
 // });
 
 // db.connect((err) => {
