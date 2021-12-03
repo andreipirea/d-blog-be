@@ -1,7 +1,9 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-
+const helmet = require("helmet");
+const compression = require("compression");
 const db = require("./util/database");
 const multer = require("multer");
 const articlesRoutes = require("./routes/posts");
@@ -72,6 +74,9 @@ app.use(carouselRoutes);
 app.use(aboutRoutes);
 app.use(contactRoutes);
 app.use("/auth", authRoutes);
+
+app.use(helmet());
+app.use(compression());
 
 db.getConnection((err, connection) => {
   if (err) {
