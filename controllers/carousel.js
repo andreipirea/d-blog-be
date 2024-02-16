@@ -8,7 +8,7 @@ exports.addSlide = (req, res) => {
     imageUrl: req.files.imageUrl !== undefined ? req.files.imageUrl[0].path.toString() : ""
   };
 
-  console.log("ADD POST", post);
+  console.log("ADD SLIDE", post);
 
   let sql = "INSERT INTO carousel SET ?";
   db.query(sql, post, (err, result) => {
