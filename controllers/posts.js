@@ -67,13 +67,13 @@ exports.getPosts = (req, res) => {
   });
 };
 
-// exports.getPost = (req, res) => {
-//   let sql = `SELECT * FROM posts WHERE id = ${req.params.id}`;
-//   let query = db.query(sql, (err, result) => {
-//     if (err) throw err;
-//     res.status(200).json(result);
-//   });
-// };
+exports.getPost = (req, res) => {
+  let sql = `SELECT * FROM posts WHERE id = ${req.params.id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    res.status(200).json(result);
+  });
+};
 
 exports.updatePost = (req, res) => {
   let galleryArray = [];
